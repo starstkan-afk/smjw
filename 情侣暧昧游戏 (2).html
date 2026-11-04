@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我们的私密时刻</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💋</text></svg>">
+<style>
+  @import url('https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #14080d;
+    --bg-card: #1f0d16;
+    --bg-card-hover: #2a1220;
+    --rose: #e85a7a;
+    --rose-light: #ff8fa3;
+    --rose-glow: rgba(232, 90, 122, 0.3);
+    --gold: #d4a574;
+    --text-primary: #f5e6e8;
+    --text-secondary: #b89aa5;
+    --text-dim: #7a5a68;
+    --border: rgba(232, 90, 122, 0.15);
+  }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 背景光晕 */
+  .bg-glow {
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(232,90,122,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-glow-2 {
+    position: fixed;
+    bottom: -30%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212,165,116,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    min-height: 100vh;
+  }
+
+  /* ===== 视图切换 ===== */
+  .view { display: none; animation: fadeIn 0.4s ease; }
+  .view.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== 首页 ===== */
+  .hero {
+    text-align: center;
+    padding: 48px 0 36px;
+  }
+  .hero-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  .hero-title .accent {
+    background: linear-gradient(135deg, var(--rose-light), var(--rose));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    line-height: 1.8;
+  }
+
+  /* 心动值显示 */
+  .hearts-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 24px 0 8px;
+    font-size: 14px;
+    color: var(--rose-light);
+  }
+  .hearts-count {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /* ===== 模式卡片（重做版） ===== */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .mode-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    min-height: 100px;
+  }
+  .mode-card:active { transform: scale(0.98); }
+  .mode-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--rose), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .mode-card:hover::before { opacity: 1; }
+
+  .mode-visual {
+    width: 100px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .mode-visual svg {
+    width: 56px;
+    height: 56px;
+  }
+  .mode-visual.v-truth {
+    background: linear-gradient(135deg, rgba(232, 90, 122, 0.15), rgba(201, 24, 74, 0.08));
+  }
+  .mode-visual.v-chat {
+    background: linear-gradient(135deg, rgba(212, 165, 116, 0.15), rgba(232, 90, 122, 0.08));
+  }
+  .mode-visual.v-history {
+    background: linear-gradient(135deg, rgba(142, 202, 230, 0.1), rgba(232, 90, 122, 0.08));
+  }
+
+  .mode-content {
+    flex: 1;
+    padding: 16px 16px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+  .mode-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .mode-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ===== 难度选择页 ===== */
+  .page-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-top: 8px;
+  }
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 0;
+    font-family: inherit;
+  }
+  .back-btn:hover { color: var(--text-primary); }
+  .page-title {
+    flex: 1;
+    text-align: center;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+
+  .difficulty-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .diff-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .diff-card:active { transform: scale(0.98); }
+  .diff-level {
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .diff-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .diff-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .diff-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+  }
+  .diff-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .diff-dot.filled { background: var(--rose); }
+
+  /* ===== 任务卡片页 ===== */
+  .task-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    min-height: 60vh;
+    justify-content: center;
+  }
+
+  .task-card {
+    width: 100%;
+    background: linear-gradient(145deg, var(--bg-card), #251019);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 28px;
+    text-align: center;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(232, 90, 122, 0.1);
+  }
+
+  .task-level-tag {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(232, 90, 122, 0.15);
+    color: var(--rose-light);
+  }
+
+  .task-text {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    line-height: 1.8;
+    font-weight: 400;
+    color: var(--text-primary);
+  }
+
+  .task-action {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    width: 100%;
+  }
+  .btn {
+    flex: 1;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--rose), #d63d62);
+    color: white;
+    box-shadow: 0 8px 24px var(--rose-glow);
+  }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:active { transform: scale(0.97); }
+
+  /* ===== 真心话大冒险 ===== */
+  .mode-toggle {
+    display: flex;
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+  .mode-toggle button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .mode-toggle button.active {
+    background: var(--rose);
+    color: white;
+  }
+
+  /* ===== 历史记录 ===== */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .history-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .history-text {
+    font-size: 13px;
+    color: var(--text-primary);
+    flex: 1;
+    line-height: 1.5;
+  }
+  .history-tag {
+    font-size: 10px;
+    color: var(--rose-light);
+    margin-left: 10px;
+    white-space: nowrap;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  /* ===== 翻转动画 ===== */
+  .flip-in {
+    animation: flipIn 0.5s ease;
+  }
+  @keyframes flipIn {
+    0% { transform: rotateY(90deg); opacity: 0; }
+    100% { transform: rotateY(0); opacity: 1; }
+  }
+
+  /* ===== 粒子爱心 ===== */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    font-size: 16px;
+    animation: floatUp 1.5s ease-out forwards;
+  }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+  }
+
+  /* ===== 首页劲爆版 ===== */
+  .hero-hero {
+    text-align: center;
+    padding: 40px 0 28px;
+    position: relative;
+  }
+  .floating-hearts {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .floating-heart {
+    position: absolute;
+    bottom: -20px;
+    font-size: 16px;
+    opacity: 0;
+    animation: floatUp 8s linear infinite;
+  }
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(0) scale(0.5); }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(-500px) scale(1.2); }
+  }
+  .partner-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .partner-switcher:active { transform: scale(0.97); }
+  .partner-name {
+    color: var(--rose-light);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .partner-arrow {
+    color: var(--text-dim);
+    font-size: 16px;
+  }
+  .hero-big-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 16px;
+  }
+  .hero-big-title .hot {
+    background: linear-gradient(135deg, #ff6b9d, #e85a7a, #c9184a, #ff6b9d);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite;
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .hero-tagline {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .hero-cta {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #e85a7a, #c9184a);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    box-shadow: 0 8px 32px rgba(201, 24, 74, 0.4), 0 0 0 0 rgba(232, 90, 122, 0.5);
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    animation: pulseGlow 2.5s ease-in-out infinite;
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 8px 32px rgba(201, 24, 74, 0.4), 0 0 0 0 rgba(232, 90, 122, 0.5); }
+    50% { box-shadow: 0 8px 40px rgba(201, 24, 74, 0.6), 0 0 0 12px rgba(232, 90, 122, 0); }
+  }
+  .hero-cta:active { transform: scale(0.98); }
+  .hero-cta-secondary {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    font-family: inherit;
+    margin-bottom: 28px;
+  }
+
+  /* ===== 悄悄话聊天板 ===== */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 180px);
+    max-height: 600px;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .chat-msg {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+    animation: fadeIn 0.3s ease;
+  }
+  .chat-msg.me {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #e85a7a, #c9184a);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-msg.ta {
+    align-self: flex-start;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-msg img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 12px;
+    display: block;
+  }
+  .chat-msg video {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 12px;
+    display: block;
+  }
+  .chat-role-mini {
+    width: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .chat-role-mini.active-ta {
+    background: rgba(142, 202, 230, 0.15);
+    color: #8ecae6;
+    border-color: rgba(142, 202, 230, 0.3);
+  }
+  .chat-input-bar {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .chat-input {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+  }
+  .chat-input:focus { border-color: var(--rose); }
+  .chat-send-btn {
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: none;
+    background: var(--rose);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chat-attach-btn {
+    width: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .empty-chat {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  /* ===== 悄悄话密码锁 ===== */
+  .chat-lock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+  }
+  .lock-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .lock-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .lock-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+  }
+  .lock-input-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    margin-bottom: 16px;
+  }
+  .lock-input {
+    width: 100%;
+    padding: 14px 44px 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+    text-align: center;
+  }
+  .lock-input:focus { border-color: var(--rose); }
+  .lock-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+  }
+  .lock-btn {
+    width: 100%;
+    max-width: 280px;
+  }
+  .lock-hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 16px;
+  }
+
+  .spacer { height: 100px; }
+
+  /* ===== 对象选择弹窗 ===== */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-box {
+    width: 90%;
+    max-width: 360px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+  }
+  .modal-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .partner-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .partner-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .partner-item.active {
+    border-color: var(--rose);
+    background: rgba(232, 90, 122, 0.1);
+  }
+  .partner-item-name {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .partner-item-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .partner-item-hearts {
+    font-size: 12px;
+    color: var(--rose-light);
+  }
+  .partner-del {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(232, 90, 122, 0.15);
+    color: var(--rose);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .partner-del:active {
+    background: var(--rose);
+    color: white;
+  }
+  .modal-add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .modal-input {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+  }
+  .modal-input:focus { border-color: var(--rose); }
+  .modal-add-btn {
+    width: 44px;
+    border-radius: 10px;
+    border: none;
+    background: var(--rose);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .modal-close {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* 移动端适配 */
+  @media (min-width: 768px) {
+    .container { max-width: 480px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="bg-glow-2"></div>
+
+<div class="container">
+
+  <!-- ===== 视图：首页 ===== -->
+  <div class="view active" id="view-home">
+    <div class="hero-hero">
+      <div class="floating-hearts" id="floatingHearts"></div>
+      <h1 class="hero-big-title">今晚<br><span class="hot">把规矩都丢掉</span></h1>
+      <p class="hero-tagline">不用装矜持<br>这里只有我们两个</p>
+
+      <div class="hearts-bar" onlongpress="showPartnerPicker()">
+        <span>心动值</span>
+        <span class="hearts-count" id="heartsCount">0</span>
+      </div>
+    </div>
+
+    <button class="hero-cta" onclick="startTask('hot')">🔥 直接来个火辣的</button>
+    <button class="hero-cta-secondary" onclick="showView('difficulty')">慢慢挑难度</button>
+
+    <div class="mode-grid">
+      <div class="mode-card" onclick="showView('truth')">
+        <div class="mode-visual v-truth">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M32 12C20 12 10 20 10 30c0 6 3 10 6 14 2 3 3 6 3 8h26c0-2 1-5 3-8 3-4 6-8 6-14 0-10-10-18-22-18z" fill="url(#lipGrad)" opacity="0.9"/>
+            <path d="M18 30c3 2 8 3 14 3s11-1 14-3" stroke="#14080d" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+            <defs>
+              <linearGradient id="lipGrad" x1="0" y1="0" x2="64" y2="64">
+                <stop offset="0%" stop-color="#ff6b9d"/>
+                <stop offset="100%" stop-color="#c9184a"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="mode-content">
+          <div class="mode-name">真心话大冒险</div>
+          <div class="mode-desc">说出你藏在心里的骚话，或者做一件让人脸红的事</div>
+        </div>
+      </div>
+
+      <div class="mode-card" onclick="showView('chat')">
+        <div class="mode-visual v-chat">
+          <svg viewBox="0 0 64 64" fill="none">
+            <rect x="8" y="16" width="48" height="32" rx="4" fill="url(#envGrad)" opacity="0.9"/>
+            <path d="M8 20l24 16 24-16" stroke="#14080d" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+            <path d="M32 44c-3-3-8-6-8-10a4.5 4.5 0 018-3 4.5 4.5 0 018 3c0 4-5 7-8 10z" fill="#fff" opacity="0.95"/>
+            <defs>
+              <linearGradient id="envGrad" x1="0" y1="0" x2="64" y2="64">
+                <stop offset="0%" stop-color="#d4a574"/>
+                <stop offset="100%" stop-color="#e85a7a"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="mode-content">
+          <div class="mode-name">悄悄话</div>
+          <div class="mode-desc">说点不敢当面说的话，发点不敢当面发的图</div>
+        </div>
+      </div>
+
+      <div class="mode-card" onclick="showView('history')">
+        <div class="mode-visual v-history">
+          <svg viewBox="0 0 64 64" fill="none">
+            <rect x="10" y="10" width="44" height="44" rx="4" fill="url(#albumGrad)" opacity="0.9"/>
+            <rect x="14" y="14" width="16" height="12" rx="2" fill="#14080d" opacity="0.2"/>
+            <rect x="34" y="14" width="16" height="12" rx="2" fill="#14080d" opacity="0.2"/>
+            <rect x="14" y="30" width="16" height="18" rx="2" fill="#14080d" opacity="0.2"/>
+            <rect x="34" y="30" width="16" height="18" rx="2" fill="#14080d" opacity="0.2"/>
+            <defs>
+              <linearGradient id="albumGrad" x1="0" y1="0" x2="64" y2="64">
+                <stop offset="0%" stop-color="#8ecae6"/>
+                <stop offset="100%" stop-color="#e85a7a"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="mode-content">
+          <div class="mode-name">我们的记录</div>
+          <div class="mode-desc">看看我们一起完成过的所有疯狂瞬间</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 视图：难度选择 ===== -->
+  <div class="view" id="view-difficulty">
+    <div class="page-header">
+      <button class="back-btn" onclick="showView('home')">← 返回</button>
+      <div class="page-title">选择难度</div>
+      <div style="width:40px"></div>
+    </div>
+
+    <div class="difficulty-list">
+      <div class="diff-card" onclick="startTask('gentle')">
+        <div class="diff-level" style="color:#8ecae6;">温柔级</div>
+        <div class="diff-name">轻轻靠近</div>
+        <div class="diff-desc">适合刚开始的夜晚，用温柔慢慢打开彼此的心</div>
+        <div class="diff-dots">
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot"></div>
+          <div class="diff-dot"></div>
+          <div class="diff-dot"></div>
+        </div>
+      </div>
+
+      <div class="diff-card" onclick="startTask('flirty')">
+        <div class="diff-level" style="color:#ffb4a2;">暧昧级</div>
+        <div class="diff-name">暧昧升温</div>
+        <div class="diff-desc">空气中开始有电流，距离一点点被拉进</div>
+        <div class="diff-dots">
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot"></div>
+          <div class="diff-dot"></div>
+        </div>
+      </div>
+
+      <div class="diff-card" onclick="startTask('hot')">
+        <div class="diff-level" style="color:var(--rose-light);">火辣级</div>
+        <div class="diff-name">心跳加速</div>
+        <div class="diff-desc">呼吸开始变重，皮肤接触的每一寸都在燃烧</div>
+        <div class="diff-dots">
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot"></div>
+        </div>
+      </div>
+
+      <div class="diff-card" onclick="startTask('wild')">
+        <div class="diff-level" style="color:var(--rose);">大胆级</div>
+        <div class="diff-name">放开自己</div>
+        <div class="diff-desc">既然是两个人的秘密，就把所有矜持都丢掉吧</div>
+        <div class="diff-dots">
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot filled"></div>
+          <div class="diff-dot filled"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 视图：任务卡片 ===== -->
+  <div class="view" id="view-task">
+    <div class="page-header">
+      <button class="back-btn" onclick="showView('difficulty')">← 换难度</button>
+      <div class="page-title" id="taskPageTitle">任务</div>
+      <div style="width:40px"></div>
+    </div>
+
+    <div class="task-stage">
+      <div class="task-card" id="taskCard">
+        <div class="task-level-tag" id="taskLevelTag">温柔级</div>
+        <div class="task-text" id="taskText">点击下方按钮<br>抽取你的第一个任务</div>
+        <div class="task-action">完成后记得点「完成 +10 心动值」</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="skipTask()">换一个</button>
+        <button class="btn btn-primary" onclick="completeTask()">完成 +10</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="drawNewTask()">🎲 抽任务</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 视图：真心话大冒险 ===== -->
+  <div class="view" id="view-truth">
+    <div class="page-header">
+      <button class="back-btn" onclick="showView('home')">← 返回</button>
+      <div class="page-title">真心话大冒险</div>
+      <div style="width:40px"></div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="active" id="truthBtn" onclick="setTruthMode('truth')">真心话</button>
+      <button id="dareBtn" onclick="setTruthMode('dare')">大冒险</button>
+    </div>
+
+    <div class="task-stage">
+      <div class="task-card" id="truthCard">
+        <div class="task-level-tag" id="truthLevelTag">真心话</div>
+        <div class="task-text" id="truthText">准备好了吗？<br>点击下面抽取一个问题</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="nextTruth()">换一个</button>
+        <button class="btn btn-primary" onclick="completeTruth()">完成 +5</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 视图：历史记录 ===== -->
+  <div class="view" id="view-history">
+    <div class="page-header">
+      <button class="back-btn" onclick="showView('home')">← 返回</button>
+      <div class="page-title">我们的记录</div>
+      <div style="width:40px"></div>
+    </div>
+
+    <div class="hearts-bar" style="margin-bottom:20px;">
+      <span>累计心动值</span>
+      <span class="hearts-count" id="heartsCount2">0</span>
+    </div>
+
+    <div class="history-list" id="historyList">
+      <div class="empty-state">
+        还没有记录哦<br>
+        去抽第一个任务吧 💫
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 视图：悄悄话聊天板 ===== -->
+  <div class="view" id="view-chat">
+    <div class="page-header">
+      <button class="back-btn" onclick="showView('home')">← 返回</button>
+      <div class="page-title">悄悄话</div>
+      <div style="width:40px"></div>
+    </div>
+
+    <!-- 密码锁界面 -->
+    <div class="chat-lock" id="chatLock">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-title">悄悄话已上锁</div>
+      <div class="lock-desc">输入密码才能看到内容</div>
+      <div class="lock-input-wrap">
+        <input type="password" class="lock-input" id="chatPwdInput" placeholder="输入密码" onkeydown="if(event.key==='Enter')unlockChat()">
+        <button class="lock-toggle" onclick="togglePwdVisible()" type="button">👁</button>
+      </div>
+      <button class="btn btn-primary lock-btn" onclick="unlockChat()">解锁</button>
+      <div class="lock-hint" id="lockHint"></div>
+    </div>
+
+    <!-- 聊天界面（解锁后才显示） -->
+    <div class="chat-container" id="chatContainer" style="display:none;">
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-chat">
+          这里是只属于你们的秘密频道<br>
+          说点当面不敢说的话吧
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="file" id="fileInput" accept="image/*,video/*" style="display:none" onchange="handleFileSelect(event)">
+        <button class="chat-attach-btn" onclick="document.getElementById('fileInput').click()">📎</button>
+        <input type="text" class="chat-input" id="chatInput" placeholder="说点骚的..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-role-mini" id="roleMiniBtn" onclick="toggleRole()" title="切换发送方">我</button>
+        <button class="chat-send-btn" onclick="sendChat()">发送</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+
+<!-- ===== 对象选择弹窗 ===== -->
+<div class="modal-overlay" id="partnerModal" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-title">选择当前对象</div>
+    <div class="partner-list" id="partnerList">
+      <!-- 动态生成 -->
+    </div>
+    <div class="modal-add-row">
+      <input type="text" class="modal-input" id="newPartnerName" placeholder="添加新对象的名字">
+      <button class="modal-add-btn" onclick="addPartner()">+</button>
+    </div>
+    <button class="modal-close" onclick="closePartnerPicker()">关闭</button>
+  </div>
+</div>
+
+<script>
+// ===== 任务库 =====
+const TASKS = {
+  gentle: [
+    "轻轻亲吻对方的额头，然后说一句今天最想Ta的瞬间",
+    "十指相扣对视30秒，谁先笑谁要亲对方一下",
+    "从背后轻轻抱住对方，在Ta耳边说一句悄悄话",
+    "给对方一个背后抱抱，安静地待一分钟不说话",
+    "轻轻抚摸对方的头发，说你觉得Ta今天哪里最好看",
+    "握住对方的手，把它贴在自己脸上停留10秒",
+    "亲吻对方的手背，然后轻轻咬一下指尖",
+    "头靠在对方肩膀上，安静地听一首歌的时间",
+    "对着对方的眼睛，认真地夸Ta三个优点",
+    "从身后抱住对方，下巴搁在Ta肩上呼吸20次",
+    "轻轻捏一下对方的脸颊，然后说『好可爱』",
+    "把对方的手放在你嘴边，轻轻亲一下掌心",
+    "用手指绕着对方的头发玩，一边聊今天最开心的事",
+    "靠在对方怀里，让Ta给你讲一个小时候的秘密",
+    "轻轻碰一下对方的鼻尖，然后笑一下",
+    "两个人一起数呼吸，数到100的时候亲一下",
+    "把脸埋在对方颈窝里，安静闻一分钟",
+    "轻轻捏一下对方的耳朵，问Ta『痒不痒』",
+    "两个人额头贴额头，闭上眼睛待30秒",
+    "轻轻拍一下对方的屁股，然后立刻抱住Ta道歉"
+  ],
+  flirty: [
+    "轻轻咬对方的耳垂，然后说出你现在最想做的事",
+    "亲吻对方的脖子，持续30秒不要停",
+    "用手指轻轻划过对方手臂内侧，让Ta猜你在画什么",
+    "脱掉对方一件外衣，动作要慢要撩人",
+    "双手捧住对方的脸，深情对视然后慢慢靠近",
+    "在对方耳边吹气，轻声说一句只有你们懂的话",
+    "把对方的手放在你腰上，说『再往上一点』",
+    "轻轻咬对方的下唇，然后笑着看Ta",
+    "用脚尖轻轻蹭对方的小腿，慢慢往上移",
+    "凑到对方嘴边，在快碰到的时候停下来，让Ta主动",
+    "轻轻舔一下对方的嘴唇，然后退开一步",
+    "用手指从下巴滑到脖子，再轻轻捏一下",
+    "把对方的手拉到你嘴上，亲一下每根手指",
+    "在对方耳边说『你今天很性感』",
+    "轻轻咬一下对方的锁骨，然后抬头看Ta",
+    "从背后贴住对方，手放在Ta腰上",
+    "对着对方的眼睛慢慢眨眼，然后凑过去",
+    "轻轻咬一下对方的肩膀，然后吹一口气",
+    "用嘴唇碰一下对方的嘴角，问Ta『想要吗』",
+    "把对方的手放在你脖子上，说『用力一点』"
+  ],
+  hot: [
+    "从锁骨开始亲吻，慢慢往上移到下巴",
+    "用嘴唇轻触对方耳后，轻声说出今晚的愿望",
+    "把对方轻轻推到墙上，深吻20秒",
+    "手指从腰开始，轻轻往上游走",
+    "坐在对方腿上，面对面接吻一分钟",
+    "解开对方一颗衬衫扣子，亲一下刚露出来的皮肤",
+    "用牙齿轻轻咬住对方的下巴，往上拉一点",
+    "手伸进对方衣服里，从后背慢慢往上摸",
+    "在对方脖子上轻轻吸一下，留个小印记",
+    "把对方的手放在你想要的地方，引导Ta",
+    "轻轻咬对方的耳垂，另一只手伸进衣服里",
+    "从对方手腕开始，一路亲到手臂内侧",
+    "把对方的衣服撩起来，亲一下肚脐周围",
+    "用嘴唇沿着对方的下巴线，慢慢亲到脖子",
+    "把对方的手按在墙上，一边亲一边数10下",
+    "轻轻咬对方的下唇，然后用舌头舔一下",
+    "手顺着对方的腰往下滑，停在最想停的地方",
+    "对着对方的脖子哈气，然后轻轻咬一口",
+    "把对方的头往后扳，亲Ta的喉咙",
+    "用嘴唇从对方的胸口中间，慢慢亲到锁骨",
+    "【电影院】黑灯电影时，把手伸进对方裤子里，慢慢摸",
+    "【电影院】趁银幕亮着，偷偷低头口对方一口，快进快出",
+    "【餐厅】桌子底下，脚蹭对方的小腿，慢慢往上",
+    "【餐厅】假装拿东西，手放在对方大腿内侧，不动",
+    "【车内】等红灯时，手伸到对方裙子里，摸一下就拿开",
+    "【车内】停好车，在驾驶座上跨坐上去，亲到喘不过气",
+    "【聚会】大家都在客厅，你坐在Ta旁边，手放在Ta腿上",
+    "【聚会】趁大家聊天，在桌子底下用脚碰对方的脚",
+    "【电梯】电梯里只有你们俩，靠在角落，手伸进对方衣服里",
+    "【电梯】电梯门关了就亲，到楼层了马上停",
+    "【公园】没人的角落，从背后抱住对方，手伸进衣服里",
+    "【沙发】和Ta并排坐沙发看电视，头靠在Ta肩膀上手伸进裤子里",
+    "【沙发】Ta躺着，你坐在Ta旁边，手放在Ta裤子上",
+    "【厨房】做饭时从背后抱住，手伸进衣服里亲脖子",
+    "【办公室】下班没人，坐在办公桌上，让Ta站你两腿之间",
+    "【办公室】开会时桌子底下，用脚蹭对方的腿",
+    "【图书馆】安静看书时，手放在对方大腿上，慢慢往上",
+    "【演唱会】人多，站后面，手伸进裙子里",
+    "【飞机】座位上，扶手放下，手放在对方腿上",
+    "【高铁】靠窗座位，靠在对方肩膀上，手伸进裤子里",
+    "【KTV】包间里大家唱歌，你坐Ta旁边，手放Ta腿上",
+    "【酒吧】嘈杂没人注意，在角落沙发上，手伸进衣服里",
+    "【健身房】更衣室没人，锁上门，背靠在门上亲",
+    "【沙滩】傍晚没人，站在海水里，从背后抱着",
+    "【教室】放学后没人，坐在课桌上，让Ta站你腿间",
+    "【亲戚家】大家在客厅聊天，你坐Ta旁边手放Ta大腿上",
+    "【露营】深夜帐篷里，躺在睡袋里，从后面抱着",
+    "【温泉】凌晨没人，泡在池子里，从背后抱着",
+    "【电影院】最后一排，把脚架在Ta腿上，手伸进衣服里",
+    "【餐厅】包间，门关上，让Ta坐你旁边手伸进裙子里",
+    "【超市】货架间没人，从背后抱住，手伸进衣服里",
+    "【电梯】镜面电梯，站后面，手放在前面人的腰上",
+    "【阳台】晚上，靠在栏杆上，从后面抱着亲脖子",
+    "【车里】后座，躺下来，让Ta坐你身上亲",
+    "【沙发】看电视时，Ta躺着，你坐在Ta腰上亲",
+    "【厨房】水槽边，从后面抱着，手伸进衣服里",
+    "【浴室】淋浴时，水开着，从后面抱着亲"
+  ],
+  wild: [
+    "闭上眼睛，让对方用嘴唇在你身上任意部位画一个形状",
+    "脱掉对方一件贴身衣物，不许用手帮忙",
+    "蒙住对方眼睛，用身体任意部位触碰Ta的手背，让Ta猜是什么",
+    "连续吻对方30秒，中间不能停也不能换气",
+    "让对方躺在床上，你用全身重量轻轻压上去吻Ta",
+    "咬对方的耳朵，同时手伸进衣服里",
+    "把对方的手绑住（用领带就行），然后随意你想怎么亲就怎么亲",
+    "对着对方的耳朵，呼吸越来越重地说情话",
+    "脱掉自己一件衣服，然后跪在床上等Ta",
+    "用嘴唇从对方手腕开始，一路亲到肩膀",
+    "蒙住对方眼睛，让Ta用手摸你猜是什么部位",
+    "脱掉对方的上衣，然后从脖子开始一路亲到肚子",
+    "把对方的手举过头顶按住，然后深吻一分钟",
+    "用嘴唇轻轻吸对方的皮肤，从手腕到肘窝",
+    "让对方坐在床边，你跪在Ta面前，抬头看着Ta亲Ta的手",
+    "把对方的T恤从下面往上卷，亲Ta的肚子",
+    "咬对方的耳朵，同时在Ta耳边说一句最骚的话",
+    "让对方闭上眼睛，你用手指在Ta背上写一个字，让Ta猜是什么",
+    "把对方推到床上，跨坐在Ta身上，亲Ta的脖子和锁骨",
+    "用牙齿轻轻咬对方的锁骨，然后吹一口气",
+    "跪下，叫对方『主人』，然后轻轻亲Ta的脚",
+    "用领带把对方的手绑在床头，然后从脖子开始亲到肚子",
+    "蒙住对方眼睛，用冰块在Ta的脖子和锁骨上慢慢滑动",
+    "命令对方一件一件脱衣服，每脱一件亲一下",
+    "打对方屁股三下，每打一下说一句骚话",
+    "坐在对方面前，让Ta跪着，你把手指放在Ta嘴边",
+    "用手掌轻轻拍对方的大腿内侧，问Ta『还想要吗』",
+    "命令对方躺在床上不许动，你想怎么摸就怎么摸",
+    "把对方的腿轻轻分开，亲Ta的大腿内侧",
+    "用嘴喂对方一颗葡萄，然后亲Ta的嘴把葡萄传过去",
+    "对着对方的耳朵说『你这个小骚货』，然后亲Ta的脖子",
+    "用手轻轻掐住对方的下巴，逼Ta看着你，然后深吻",
+    "让对方趴在床上，你坐在Ta腰上，亲Ta的后颈和耳朵",
+    "用手指从对方下巴一路滑到胸口，然后说『你好骚』",
+    "蒙住对方眼睛，用嘴唇在Ta身上任意地方留一个印记",
+    "命令对方把衣服全部脱掉，跪在你面前看着你",
+    "用舌头舔对方的手指，然后一根一根轻轻吸",
+    "把对方按在墙上，手掐着Ta的腰，用力亲到喘不过气",
+    "对着对方的耳朵，呼吸很重地说『你是我的，只能是我的』",
+    "命令对方趴在地上，你坐在Ta脸上，问Ta『舒服吗』",
+    "用皮带轻轻抽对方的屁股，每抽一下说一句『骚货』",
+    "把对方的双手绑在背后，然后从脖子开始亲到腿",
+    "对着对方的脸，吐一口口水在Ta嘴里",
+    "命令对方学狗叫，叫一声亲一下",
+    "用手指塞进对方嘴里，说『吸干净』",
+    "把对方的内裤脱下来，套在Ta头上",
+    "对着镜子，让对方看着自己被你亲，说『你看你好骚』",
+    "命令对方跪在你脚下，舔你的鞋底",
+    "用手掐住对方的脖子，不使劲，就是掐着，然后深吻",
+    "把对方按在沙发上，腿分开，亲Ta的大腿内侧",
+    "对着对方的耳朵说『你就是我的性奴』",
+    "命令对方自己脱衣服，脱到我满意为止",
+    "用嘴把对方的脚趾头一根一根舔过去",
+    "把对方的手绑在床头，用羽毛轻轻骚Ta，问Ta『想不想被碰』",
+    "对着对方的脸说『你下面好骚』，然后低头亲",
+    "命令对方对着镜子自慰，你在旁边看着",
+    "把对方压在身下，手掐着Ta的手腕，说『你只能是我的』",
+    "男上位：躺好，压上去，慢慢来，亲到Ta叫出声",
+    "女上位：坐Ta上面，自己动，看着Ta的眼睛",
+    "后入：让Ta趴在床上，跪后面，从后面来",
+    "侧入：侧躺着，从后面抱着，一条腿抬起来",
+    "站立式：抱起来，腿缠腰，靠墙站着做",
+    "女上位骑乘：坐上面，上下动，手撑着Ta的胸口",
+    "传教士：躺好，腿分开，你在上面慢慢进入",
+    "后入跪姿：Ta跪着，你站后面，手抓着腰",
+    "女上位深坐：坐Ta脸上，让Ta舔你下面",
+    "侧入汤匙：两个人侧躺，从后面贴着，手放在下面",
+    "站立抬腿：站着，一条腿抬起来，你扶着，慢慢进来",
+    "女上位控制：你坐上面，想怎么动就怎么动，Ta只能看着",
+    "后入趴床：Ta趴在床边，你站着，从后面进来",
+    "女上位面壁：Ta趴着，你坐在Ta脸上，对着墙",
+    "【电影院】电影最安静的时候，低头口对方，让Ta不敢出声",
+    "【电影院】黑灯时，把裙子撩起来，手伸到下面",
+    "【餐厅】去洗手间，把Ta拉进来，锁上门，亲到喘不过气",
+    "【车内】后座，躺下来，让Ta坐上面，车窗贴了膜没人看见",
+    "【聚会】趁大家都在玩，拉Ta到卧室，快速做一次",
+    "【聚会】你坐在Ta腿上，假装看电视，其实在磨",
+    "【电梯】顶层上去，没人按楼层，站着做一次",
+    "【阳台】深夜没人，站在阳台，从后面抱着做",
+    "【厨房】做饭时，让Ta趴在料理台上，从后面来",
+    "【沙发】看电影时，坐Ta身上，慢慢动，手不要停",
+    "【浴室】一起洗澡，站着，水开着，从后面来",
+    "【客厅】家人在旁边房间，你们在沙发上偷偷摸，不敢出声",
+    "【停车场】车里停好，地下车库没人，在座位上做一次",
+    "【楼道】走到家门口，开门前，靠墙站着亲，手伸进裤子里",
+    "【办公室】下班没人，坐在办公桌上，腿打开，从前面来",
+    "【办公室】把Ta按在办公桌上，站着，从前面来",
+    "【会议室】关灯，会议桌上，躺下来，从上面来",
+    "【图书馆】最里面书架间没人，趴在书架上，从后面来",
+    "【演唱会】人多挡着，站后面，从后面来",
+    "【飞机】最后一排没人，靠在窗边，腿分开",
+    "【高铁】卫生间，锁上门，站着从前面来",
+    "【KTV】包间厕所，锁门，坐在洗手台上，从前面来",
+    "【酒吧】二楼没人的角落，墙边上，站着从前面来",
+    "【健身房】瑜伽室没人，垫子上，从上面来",
+    "【沙滩】深夜没人，海水里，从后面抱着来",
+    "【教室】放学后课桌上，坐上面，从前面来",
+    "【亲戚家】客人都在，卧室门锁上，快速做一次",
+    "【露营】帐篷里，睡袋上，侧着从后面来",
+    "【温泉】凌晨没人，池子里，从后面抱着站着来",
+    "【电影院】最后一排最角落，椅子放平，从上面来",
+    "【餐厅】包间躺桌上，从上面来",
+    "【超市】仓库没人，坐在购物车上，从前面来",
+    "【电梯】顶层没人，镜子前面，从后面来",
+    "【阳台】深夜没人，栏杆边上，站着从后面来",
+    "【车里】后座，躺下来，从上面来",
+    "【沙发】扶手上，坐上面，从前面来",
+    "【厨房】料理台上，坐上面，从前面来",
+    "【浴室】墙上，站着，腿抬起来，从前面来",
+    "【酒店】落地窗前，站着从后面来，看着外面",
+    "【酒店】浴缸里，坐Ta上面，从上面来",
+    "【酒店】镜子前，从后面来，看着镜子",
+    "【泳池】深夜没人，水里，从后面抱着站着来",
+    "【海边】深夜沙滩上，躺下来，从上面来",
+    "命令对方对着镜子说『我是个骚货』，说十遍",
+    "把对方的内裤脱下来，给你闻",
+    "用脚轻轻踩对方的脸，问Ta『舒服吗』",
+    "命令对方学猫叫，叫一声摸一下",
+    "把对方的手绑在床头，用羽毛轻轻骚Ta全身",
+    "对着对方的耳朵说『你就是我的一条小狗』",
+    "用手指插进对方嘴里，说『吸干净』",
+    "把对方按在地上，骑在Ta脸上，让Ta舔你",
+    "命令对方穿上你的内裤，穿着一整晚",
+    "用嘴把对方的脚趾头一根一根舔干净，包括脚趾缝",
+    "让对方趴在地上，你坐在Ta脸上，问Ta『谁是主人』",
+    "对着对方的耳朵说『你是我的，只能是我的』",
+    "用皮带轻轻抽对方的屁股，抽到红印",
+    "用夹子夹对方的乳头，轻轻拉",
+    "对着对方的脸说『你下面真骚，我喜欢』",
+    "让对方张开嘴，你轻轻吹一口气在Ta嘴里",
+    "把对方的腿分开绑起来，看着Ta说『真性感』",
+    "命令对方自己摸自己，你在旁边看着指导",
+    "用手轻轻掐住对方的脖子，说『你是我的』",
+    "对着镜子，让对方看着自己被你亲，说『你看你好骚』",
+    "把对方的双手绑在背后，从后面抱着亲",
+    "命令对方跪在你面前，抬头看着你，说『我想要』",
+    "用舌头舔对方的耳朵，然后轻轻咬一下",
+    "命令对方跪着，双手抱头，你站在Ta面前",
+    "把对方的双手反绑，用膝盖顶开Ta的腿",
+    "对着对方的脸说『你是我的专属玩具』",
+    "用手指从对方嘴唇滑到脖子，再滑到胸口",
+    "让对方张开嘴，你用手指轻轻刮Ta的舌头",
+    "把对方按在墙上，膝盖顶进Ta两腿之间",
+    "对着对方的耳朵说『我要把你操到哭』",
+    "用手轻轻拍对方的脸，说『看着我』",
+    "让对方趴在床上，你坐在Ta后腰上，亲Ta的后颈",
+    "把对方的脚抬起来，亲Ta的脚心",
+    "对着对方的耳朵，呼吸很重地说『你好湿/硬』",
+    "用嘴轻轻吸对方的乳头，吸到红印",
+    "把对方的手放在你嘴前，舔一下掌心",
+    "命令对方自己脱衣服，一件一件脱给你看",
+    "对着镜子，让对方看着自己被你摸，说『你看你好享受』",
+    "用舌头从对方的下巴一路舔到胸口",
+    "把对方抱起来，腿缠你腰上，抵在墙上",
+    "对着对方的脸说『你就是我的小母狗』",
+    "用手指轻轻划过对方的嘴唇，说『张开』",
+    "让对方跪在你腿边，头靠在你腿上",
+    "把对方的T恤从头上脱掉，亲Ta的肚子",
+    "对着对方的耳朵说『我想看你高潮的样子』",
+    "用手轻轻掐对方的腰，说『这里是我的』",
+    "让对方躺在床上，你俯身压上去，头发垂在Ta脸上",
+    "把对方的双手举过头顶，一只手按住，另一只手摸",
+    "对着对方的脖子哈气，然后轻轻咬一口",
+    "用嘴轻轻咬对方的耳垂，说『想要吗』",
+    "把对方的腿抬起来，放在你肩膀上",
+    "对着对方的脸说『你下面真好看，我要吃了』",
+    "用手指从对方的下巴滑到锁骨，再滑到胸口",
+    "让侧躺着，你从后面抱着，手伸到前面",
+    "把对方的内裤拉到一边，直接用手",
+    "对着对方的耳朵说『叫出来，我想听』",
+    "用嘴轻轻亲对方的肚脐眼，然后吹一口气",
+    "把对方翻过来，趴在床上，从后面抱着亲",
+    "对着对方的脸说『你今天好骚，我喜欢』",
+    "用手轻轻摸对方的脸，说『你真可爱』",
+    "让对方坐在你腿上，面对面，腿缠你腰上",
+    "把对方的手放在你嘴上，亲一下每根手指",
+    "对着对方的耳朵说『你只能给我一个人看』",
+    "用舌头轻轻舔对方的嘴唇，说『张开』",
+    "把对方的头往后扳，亲Ta的喉咙",
+    "对着对方的脖子说『我要在这里留个印』",
+    "用手轻轻拍对方的屁股，说『翘起来』",
+    "让对方趴在你身上，你躺着，手顺着Ta的背往下摸",
+    "把对方的腿分开，跪在Ta两腿之间",
+    "对着对方的脸说『看着我，我要进来了』",
+    "用嘴轻轻亲对方的膝盖内侧，慢慢往上",
+    "把对方的双手绑在床头，说『现在你动不了了』",
+    "对着对方的耳朵说『你是我的，从头到脚都是我的』"
+  ]
+};
+
+const TRUTHS = [
+  "你第一次对我心动是什么时候？",
+  "我身上你最喜欢碰的地方是哪里？",
+  "你做过最色的梦，主角是我吗？",
+  "和我在一起之后，你最上瘾的是什么？",
+  "你最喜欢我用什么方式叫你？",
+  "我做过最让你受不了的事情是什么？",
+  "你偷偷幻想过我们在什么地方亲密？",
+  "你觉得我身体最性感的部位是哪里？",
+  "和我接吻的时候你在想什么？",
+  "你什么时候开始觉得『我就是这个人了』？",
+  "我身上哪个地方你一碰就有反应？",
+  "你觉得我们最疯狂的一次是什么时候？",
+  "你最想让我穿什么给你看？",
+  "你偷偷看过我的手机吗？在看什么？",
+  "你第一次勃起/湿润是因为我吗？什么时候？",
+  "你觉得我最骚的样子是什么时候？",
+  "你偷偷给我起过什么外号？",
+  "你最想让我对你做什么？直说",
+  "你觉得我接吻技术打几分？为什么？",
+  "你藏过什么关于我的秘密没告诉我？",
+  "你想不想当主人？想让我听你的话？",
+  "你最想让我对你做什么羞耻的事？",
+  "你偷偷看过黄片里最想试的动作是什么？",
+  "你觉得我们之间谁更色？",
+  "你最喜欢我叫你什么？",
+  "你有没有想过被我绑住是什么感觉？",
+  "你想不想在我面前脱光所有衣服？",
+  "你觉得我身体哪里最让你上瘾？",
+  "你想不想让我命令你做什么？",
+  "你做过最色的事情是什么？",
+  "你幻想过我在上面还是在下面？",
+  "你觉得我穿什么最性感？",
+  "你有没有偷偷闻过我的衣服？",
+  "你想不想把我按在床上随便你弄？",
+  "你觉得我最骚的部位是哪里？"
+];
+
+const DARES = [
+  "现在就亲我，要让我喘不过气那种",
+  "脱掉一件衣服，然后说一句很撩的话",
+  "对着我的耳朵，用最骚的声音说一句话",
+  "用嘴唇把我的衣服扣子解开一颗",
+  "把我的手放在你身上一个地方，不许拿开",
+  "咬我的脖子，要咬到有点疼的程度",
+  "现在就坐到我腿上来，抱着我亲两分钟",
+  "用你最诱惑的眼神看着我，不许笑",
+  "把手伸进我衣服里，不许碰别的地方",
+  "在我耳边说一句你从来没说过的骚话",
+  "脱掉你的上衣，然后从我的脖子开始一路亲下去",
+  "把我按在床上，亲我的脖子和锁骨，不许停",
+  "用嘴把我的皮带解开，不许用手",
+  "现在就叫我一声最骚的称呼",
+  "把我的手放在你最想让我碰的地方",
+  "蒙住我的眼睛，然后亲我任意地方，让我猜是哪",
+  "脱掉你的内裤，然后坐到我腿上来",
+  "用你的身体任意部位蹭我的脸",
+  "现在就说一句你觉得最色的话给我听",
+  "把我的衣服撩起来，用嘴唇亲我的肚子",
+  "跪下，叫我一声主人",
+  "用舌头舔我的手指，一根一根来",
+  "对着我的眼睛说『我是你的小骚货』",
+  "现在就把你的衣服全部脱掉，站在我面前",
+  "趴在我腿上，让我打你三下屁股",
+  "用你的嘴把我的手从手指亲到手腕",
+  "对着我的耳朵说『我想要你，现在就要』",
+  "把我推倒在床上，你压上来，亲到我喘不过气",
+  "用你的身体任意部位摩擦我，直到我有反应",
+  "现在就跪在床上，用最骚的眼神看着我",
+  "对着我的脸说『我是你的骚货』",
+  "趴在我腿上，让我打你五下屁股",
+  "把你的内裤脱下来，给我看",
+  "现在就用嘴给我舔脚趾",
+  "对着镜子说三遍『我好骚』",
+  "学狗叫，叫三声我满意了就亲你",
+  "把你的手放在你最想让我碰的地方",
+  "现在就把衣服全部脱光，站在我面前",
+  "对着我的耳朵说『我想要你操我』",
+  "跪在我脚下，亲我的鞋子",
+  "用嘴把我的手从手腕亲到胳膊肘",
+  "现在就自慰给我看，不许停",
+  "坐到我上面来，自己动，我看着",
+  "躺好，腿打开，我在上面进来",
+  "趴好，跪后面，我从后面来",
+  "侧过来，腿抬起来，从后面进",
+  "站起来，腿缠我腰上，我抱你到墙上",
+  "把腿打开，让我看看你下面",
+  "对着镜子说十遍『我是你的骚货』",
+  "跪下，叫我主人",
+  "把你的内裤脱下来给我",
+  "趴在我腿上，让我打你十下屁股",
+  "现在就用嘴给我舔脚趾，一根一根",
+  "对着我的耳朵说『我想要你操我』",
+  "跪在我脚下，亲我的鞋子",
+  "张开嘴，我吹一口气在你嘴里",
+  "学狗叫，叫三声我满意了就亲你",
+  "把你的手绑在背后，让我随便亲",
+  "用嘴把我的手从手腕亲到胳膊肘",
+  "现在就自慰给我看，不许停",
+  "坐我脸上，让我舔你",
+  "把我的手放在你下面，不许拿开",
+  "对着我的脸说『我好骚，我想要』",
+  "趴在地上，让我坐在你脸上",
+  "把你的衣服全部脱光，站在我面前",
+  "现在就亲我下面，用嘴",
+  "跪下，把我的鞋舔干净",
+  "对着镜子说十遍『我是骚货』",
+  "把你的内裤脱下来，套在头上",
+  "现在就学狗叫，叫到我满意",
+  "趴在我腿上，让我打你二十下屁股",
+  "用嘴把我的脚趾头一根一根舔干净",
+  "对着我的耳朵说『我是你的小母狗』",
+  "把你的手放在你下面，自己摸给我看",
+  "现在就把衣服脱光，转一圈给我看",
+  "跪在我面前，抬头看着我，说『我想要』",
+  "用舌头舔我的手掌，然后吸一下",
+  "把我的手放在你嘴里，吸干净",
+  "对着我的脸说『你操得我好舒服』",
+  "现在就把腿打开，让我看看",
+  "趴在床上，屁股翘起来，等着我",
+  "把你的手绑在床头，不许动",
+  "对着我的脖子说『我想要你操我』",
+  "现在就坐我脸上，让我舔你",
+  "把你的衣服撩起来，亲你的肚子",
+  "跪在地上，抱着我的腿，说『我错了』",
+  "用嘴轻轻咬我的耳垂，说『想要』",
+  "把我的手放在你下面，不许拿开",
+  "现在就脱了裤子，趴好",
+  "对着我的耳朵说『你好骚，我好喜欢』",
+  "把你的腿分开，让我看着",
+  "趴在我身上，你在上面，动给我看",
+  "把我的手放在你嘴里，咬一下",
+  "现在就说『我是你的，从头到脚都是你的』",
+  "对着镜子，看着自己，说『我好骚』",
+  "把你的头埋在我腿间，不许抬头",
+  "现在就亲我脖子，亲到留印",
+  "跪在我脚下，让我摸你的头",
+  "把你的手放在我胸口，说『心跳好快』",
+  "现在就用身体蹭我，直到我有反应",
+  "对着我的脸说『我想要你，现在就要』",
+  "把你的腿抬起来，放在我肩膀上",
+  "现在就张开嘴，我要吐口水在你嘴里",
+  "趴在沙发上，屁股翘起来，等着我",
+  "把你的手放在你自己胸上，摸给我看",
+  "现在就说『我下面好痒，想要你』",
+  "对着我的耳朵说『操我，用力操我』",
+  "把你的内裤拉到一边，直接用手",
+  "现在就亲我下面，亲到我叫出来",
+  "跪在我面前，说『主人，我错了』",
+  "把你的衣服全部脱掉，躺在床上，等着我",
+  "现在就看着我的眼睛，说『我爱你，也爱被你操』"
+];
+
+// ===== 多对象状态管理 =====
+// 每个对象独立存储：名字、心动值、历史记录、聊天房间、密码
+let partners = JSON.parse(localStorage.getItem('couple_partners') || 'null');
+let currentPartnerId = localStorage.getItem('couple_current_partner') || '';
+
+// 第一次使用，创建默认对象
+if (!partners || partners.length === 0) {
+  partners = [{
+    id: 'p1',
+    name: '宝贝',
+    hearts: 0,
+    history: [],
+    room: '',
+    chatPwd: ''
+  }];
+  currentPartnerId = 'p1';
+  savePartners();
+}
+
+function savePartners() {
+  localStorage.setItem('couple_partners', JSON.stringify(partners));
+  localStorage.setItem('couple_current_partner', currentPartnerId);
+}
+
+function getCurrentPartner() {
+  return partners.find(p => p.id === currentPartnerId) || partners[0];
+}
+
+// 兼容旧代码：hearts 和 history 从当前对象读取
+let hearts = 0;
+let history = [];
+let roomId = '';
+
+function loadCurrentPartner() {
+  const p = getCurrentPartner();
+  hearts = p.hearts;
+  history = p.history;
+  roomId = p.room;
+  // 切换对象时清空聊天记录，防止串
+  chatMessages = [];
+  chatUnlocked = false;
+  const container = document.getElementById('chatMessages');
+  if (container) container.innerHTML = '';
+  updateHearts();
+}
+
+function saveCurrentPartner() {
+  const p = getCurrentPartner();
+  p.hearts = hearts;
+  p.history = history;
+  p.room = roomId;
+  savePartners();
+}
+
+// 对象选择弹窗
+function showPartnerPicker() {
+  renderPartnerList();
+  document.getElementById('partnerModal').style.display = 'flex';
+}
+
+function closePartnerPicker() {
+  document.getElementById('partnerModal').style.display = 'none';
+}
+
+function renderPartnerList() {
+  const list = document.getElementById('partnerList');
+  list.innerHTML = partners.map(p => `
+    <div class="partner-item ${p.id === currentPartnerId ? 'active' : ''}" onclick="selectPartner('${p.id}')">
+      <span class="partner-item-name">${p.name}</span>
+      <span class="partner-item-right">
+        <span class="partner-item-hearts">${p.hearts} 💖</span>
+        ${partners.length > 1 ? `<span class="partner-del" onclick="event.stopPropagation();deletePartner('${p.id}')">✕</span>` : ''}
+      </span>
+    </div>
+  `).join('');
+}
+
+function deletePartner(id) {
+  const p = partners.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`确定要删除「${p.name}」吗？所有聊天记录和心动值都会删掉，找不回来。`)) return;
+
+  partners = partners.filter(x => x.id !== id);
+
+  // 如果删的是当前对象，切到第一个
+  if (currentPartnerId === id) {
+    currentPartnerId = partners[0].id;
+    loadCurrentPartner();
+  }
+  savePartners();
+  renderPartnerList();
+  updateHearts();
+}
+
+function selectPartner(id) {
+  currentPartnerId = id;
+  loadCurrentPartner();
+  savePartners();
+  closePartnerPicker();
+  // 重置聊天解锁状态，切换对象需要重新输密码
+  chatUnlocked = false;
+  stopPolling();
+}
+
+function addPartner() {
+  const input = document.getElementById('newPartnerName');
+  const name = input.value.trim();
+  if (!name) return;
+  const newId = 'p' + Date.now();
+  partners.push({
+    id: newId,
+    name: name,
+    hearts: 0,
+    history: [],
+    room: '',
+    chatPwd: '',
+    localChat: []
+  });
+  currentPartnerId = newId;
+  input.value = '';
+  loadCurrentPartner();
+  savePartners();
+  renderPartnerList();
+  chatUnlocked = false;
+  stopPolling();
+}
+
+// ===== 基础状态 =====
+let currentDiff = 'gentle';
+let truthMode = 'truth';
+
+const diffNames = {
+  gentle: '温柔级',
+  flirty: '暧昧级',
+  hot: '火辣级',
+  wild: '大胆级'
+};
+
+// ===== 视图切换 =====
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'chat') {
+    checkChatLock();
+    if (chatUnlocked) startPolling(); else stopPolling();
+  } else { stopPolling(); }
+  updateHearts();
+}
+
+// ===== 任务系统 =====
+function startTask(diff) {
+  currentDiff = diff;
+  document.getElementById('taskPageTitle').textContent = diffNames[diff];
+  document.getElementById('taskLevelTag').textContent = diffNames[diff];
+  showView('task');
+  drawNewTask();
+}
+
+// 最近抽过的任务，防止连续重复
+let recentTasks = [];
+const MAX_RECENT = 5;
+
+function drawNewTask() {
+  const tasks = TASKS[currentDiff];
+  // 从最近没抽过的任务里随机选
+  const available = tasks.filter(t => !recentTasks.includes(t));
+  const pool = available.length > 0 ? available : tasks;
+  const randomTask = pool[Math.floor(Math.random() * pool.length)];
+
+  // 记录最近抽过的
+  recentTasks.push(randomTask);
+  if (recentTasks.length > MAX_RECENT) recentTasks.shift();
+
+  const card = document.getElementById('taskCard');
+  card.classList.remove('flip-in');
+  void card.offsetWidth;
+  card.classList.add('flip-in');
+  document.getElementById('taskText').innerHTML = randomTask;
+}
+
+function skipTask() {
+  drawNewTask();
+}
+
+function completeTask() {
+  const taskText = document.getElementById('taskText').textContent;
+  hearts += 10;
+  saveState();
+  addHistory(taskText, diffNames[currentDiff], 10);
+  burstHearts();
+  drawNewTask();
+}
+
+// ===== 真心话大冒险 =====
+function setTruthMode(mode) {
+  truthMode = mode;
+  document.getElementById('truthBtn').classList.toggle('active', mode === 'truth');
+  document.getElementById('dareBtn').classList.toggle('active', mode === 'dare');
+  document.getElementById('truthLevelTag').textContent = mode === 'truth' ? '真心话' : '大冒险';
+  nextTruth();
+}
+
+// 真心话大冒险最近抽过的
+let recentTruths = [];
+
+function nextTruth() {
+  const pool = truthMode === 'truth' ? TRUTHS : DARES;
+  const available = pool.filter(t => !recentTruths.includes(t));
+  const finalPool = available.length > 0 ? available : pool;
+  const item = finalPool[Math.floor(Math.random() * finalPool.length)];
+
+  recentTruths.push(item);
+  if (recentTruths.length > MAX_RECENT) recentTruths.shift();
+
+  const card = document.getElementById('truthCard');
+  card.classList.remove('flip-in');
+  void card.offsetWidth;
+  card.classList.add('flip-in');
+  document.getElementById('truthText').innerHTML = item;
+}
+
+function completeTruth() {
+  const text = document.getElementById('truthText').textContent;
+  hearts += 5;
+  saveState();
+  addHistory(text, truthMode === 'truth' ? '真心话' : '大冒险', 5);
+  burstHearts();
+  nextTruth();
+}
+
+// ===== 记录系统 =====
+function addHistory(text, tag, points) {
+  history.unshift({
+    text: text,
+    tag: tag,
+    points: points,
+    time: new Date().toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  });
+  if (history.length > 50) history = history.slice(0, 50);
+  saveState();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (history.length === 0) {
+    list.innerHTML = '<div class="empty-state">还没有记录哦<br>去抽第一个任务吧</div>';
+    return;
+  }
+  list.innerHTML = history.map(h => `
+    <div class="history-item">
+      <div class="history-text">${h.text}</div>
+      <div class="history-tag">+${h.points} 💖</div>
+    </div>
+  `).join('');
+}
+
+function updateHearts() {
+  document.getElementById('heartsCount').textContent = hearts;
+  document.getElementById('heartsCount2').textContent = hearts;
+}
+
+function saveState() {
+  saveCurrentPartner();
+}
+
+// ===== 爱心粒子特效 =====
+function burstHearts() {
+  const emojis = ['💖', '💕', '💗', '💓'];
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 200) + 'px';
+      p.style.top = (window.innerHeight / 2 + (Math.random() - 0.5) * 100) + 'px';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1500);
+    }, i * 80);
+  }
+}
+
+// ===== 悄悄话聊天板（云端同步版） =====
+// 部署Worker后，把下面这行改成你的Worker地址
+const API_BASE = 'https://couple-chat.你的用户名.workers.dev';
+
+let chatMessages = [];
+let currentRole = 'me';
+let lastSyncTime = 0;
+let pollTimer = null;
+let chatUnlocked = false;
+let pwdErrorCount = 0;
+
+function togglePwdVisible() {
+  const input = document.getElementById('chatPwdInput');
+  const btn = input.nextElementSibling;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+function ensureRoom() {
+  const p = getCurrentPartner();
+  if (!roomId) {
+    roomId = prompt('请输入房间名（两个人要一样才能聊天）：', '');
+    if (!roomId) roomId = 'default';
+    p.room = roomId;
+    savePartners();
+  }
+  return roomId;
+}
+
+// 密码锁逻辑
+function checkChatLock() {
+  const p = getCurrentPartner();
+  const savedPwd = p.chatPwd;
+  const lockEl = document.getElementById('chatLock');
+  const containerEl = document.getElementById('chatContainer');
+
+  if (!savedPwd) {
+    // 第一次使用，设置密码
+    document.querySelector('.lock-title').textContent = '设置悄悄话密码';
+    document.querySelector('.lock-desc').textContent = '和' + p.name + '约定一个密码';
+    document.getElementById('chatPwdInput').placeholder = '设置一个密码';
+    document.querySelector('.lock-btn').textContent = '设置密码';
+    document.getElementById('lockHint').textContent = '';
+    lockEl.style.display = 'flex';
+    containerEl.style.display = 'none';
+    chatUnlocked = false;
+  } else if (chatUnlocked) {
+    // 已解锁
+    lockEl.style.display = 'none';
+    containerEl.style.display = 'flex';
+    // 从本地加载聊天记录
+    const p = getCurrentPartner();
+    chatMessages = p.localChat || [];
+    renderChat();
+  } else {
+    // 未解锁，显示密码输入框
+    document.querySelector('.lock-title').textContent = '悄悄话已上锁';
+    document.querySelector('.lock-desc').textContent = '输入密码才能和' + p.name + '的聊天';
+    document.getElementById('chatPwdInput').placeholder = '输入密码';
+    document.querySelector('.lock-btn').textContent = '解锁';
+    document.getElementById('lockHint').textContent = '';
+    lockEl.style.display = 'flex';
+    containerEl.style.display = 'none';
+  }
+}
+
+// 密码哈希（简单SHA-256）
+async function hashPwd(pwd) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd + 'couple-salt'));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function unlockChat() {
+  const input = document.getElementById('chatPwdInput');
+  const pwd = input.value.trim();
+  if (!pwd) return;
+
+  const p = getCurrentPartner();
+  const savedPwd = p.chatPwd;
+  const hint = document.getElementById('lockHint');
+  const hashed = await hashPwd(pwd);
+
+  if (!savedPwd) {
+    // 第一次设置密码
+    p.chatPwd = hashed;
+    pwdErrorCount = 0;
+    savePartners();
+    chatUnlocked = true;
+    input.value = '';
+    checkChatLock();
+    startPolling();
+  } else {
+    // 验证密码
+    if (hashed === savedPwd) {
+      pwdErrorCount = 0;
+      chatUnlocked = true;
+      input.value = '';
+      checkChatLock();
+      startPolling();
+    } else {
+      hint.textContent = '密码不对哦';
+      input.value = '';
+      input.focus();
+      pwdErrorCount++;
+      if (pwdErrorCount >= 3) {
+        hint.innerHTML = '<span style="cursor:pointer;text-decoration:underline;font-size:12px;" onclick="resetPwd()">忘记密码？点这里重置</span>';
+      }
+    }
+  }
+}
+
+function resetPwd() {
+  const p = getCurrentPartner();
+  if (!confirm(`确定要重置「${p.name}」的悄悄话密码吗？聊天记录不会丢，但需要重新设密码。`)) return;
+  p.chatPwd = '';
+  pwdErrorCount = 0;
+  savePartners();
+  checkChatLock();
+}
+
+function toggleRole() {
+  currentRole = currentRole === 'me' ? 'ta' : 'me';
+  const btn = document.getElementById('roleMiniBtn');
+  btn.textContent = currentRole === 'me' ? '我' : 'Ta';
+  btn.classList.toggle('active-ta', currentRole === 'ta');
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const p = getCurrentPartner();
+  const room = ensureRoom();
+  input.value = '';
+
+  const msg = {
+    role: currentRole,
+    type: 'text',
+    content: text,
+    time: Date.now()
+  };
+
+  // 本地先存
+  if (!p.localChat) p.localChat = [];
+  p.localChat.push(msg);
+  saveCurrentPartner();
+
+  try {
+    await fetch(API_BASE + '/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        room: room,
+        role: currentRole,
+        type: 'text',
+        content: text
+      })
+    });
+    fetchMessages(); // 发送后立刻拉一次
+  } catch(e) {
+    // Worker没部署也能本地聊
+    renderLocalChat();
+  }
+}
+
+function renderLocalChat() {
+  const p = getCurrentPartner();
+  chatMessages = p.localChat || [];
+  renderChat();
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const isImage = file.type.startsWith('image/');
+  const isVideo = file.type.startsWith('video/');
+  if (!isImage && !isVideo) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let dataUrl = e.target.result;
+    if (isImage) {
+      const img = new Image();
+      img.onload = async function() {
+        const canvas = document.createElement('canvas');
+        const maxW = 600;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        await postMessage('image', dataUrl);
+      };
+      img.src = dataUrl;
+    } else {
+      // 视频太大，提示用户
+      alert('视频太大，云端同步建议只发图片哦');
+      return;
+    }
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+async function postMessage(type, content) {
+  const room = ensureRoom();
+  try {
+    await fetch(API_BASE + '/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        room: room,
+        role: currentRole,
+        type: type,
+        content: content
+      })
+    });
+    fetchMessages();
+  } catch(e) {
+    alert('发送失败');
+  }
+}
+
+async function fetchMessages() {
+  const room = ensureRoom();
+  try {
+    const res = await fetch(API_BASE + '/api/messages?room=' + encodeURIComponent(room) + '&since=' + lastSyncTime);
+    const data = await res.json();
+    if (data.messages && data.messages.length > 0) {
+      chatMessages = chatMessages.concat(data.messages);
+      // 更新最后同步时间
+      data.messages.forEach(m => {
+        if (m.time > lastSyncTime) lastSyncTime = m.time;
+      });
+      renderChat();
+    }
+  } catch(e) {
+    // 静默失败，不打扰用户
+  }
+}
+
+function renderChat() {
+  const container = document.getElementById('chatMessages');
+  if (chatMessages.length === 0) {
+    container.innerHTML = '<div class="empty-chat">这里是只属于你们的秘密频道<br>说点当面不敢说的话吧</div>';
+    return;
+  }
+  container.innerHTML = chatMessages.map(m => {
+    const cls = m.role === 'me' ? 'me' : 'ta';
+    let content = '';
+    if (m.type === 'image') {
+      content = `<img src="${m.content}" alt="">`;
+    } else if (m.type === 'video') {
+      content = `<video src="${m.content}" controls></video>`;
+    } else {
+      content = escapeHtml(m.content);
+    }
+    return `<div class="chat-msg ${cls}">${content}</div>`;
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  fetchMessages();
+  pollTimer = setInterval(fetchMessages, 2000); // 每2秒拉一次新消息
+}
+
+function stopPolling() {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+}
+
+// 初始化
+loadCurrentPartner();
+updateHearts();
+
+// 长按事件绑定
+document.addEventListener('DOMContentLoaded', function() {
+  const heartsBar = document.querySelector('.hearts-bar');
+  if (heartsBar) {
+    let pressTimer = null;
+    heartsBar.addEventListener('touchstart', function() {
+      pressTimer = setTimeout(function() {
+        showPartnerPicker();
+      }, 800);
+    });
+    heartsBar.addEventListener('touchend', function() {
+      clearTimeout(pressTimer);
+    });
+    heartsBar.addEventListener('mousedown', function() {
+      pressTimer = setTimeout(function() {
+        showPartnerPicker();
+      }, 800);
+    });
+    heartsBar.addEventListener('mouseup', function() {
+      clearTimeout(pressTimer);
+    });
+  }
+
+  // 生成飘动爱心粒子
+  const heartsContainer = document.getElementById('floatingHearts');
+  if (heartsContainer) {
+    const heartChars = ['❤', '💗', '💖', '💕'];
+    for (let i = 0; i < 15; i++) {
+      const heart = document.createElement('span');
+      heart.className = 'floating-heart';
+      heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+      heart.style.left = Math.random() * 100 + '%';
+      heart.style.animationDelay = Math.random() * 8 + 's';
+      heart.style.animationDuration = (6 + Math.random() * 6) + 's';
+      heart.style.fontSize = (10 + Math.random() * 14) + 'px';
+      heartsContainer.appendChild(heart);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
